@@ -1,5 +1,5 @@
 package gui.views;
-
+// Problemstellungen der höheren Mathematik
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
