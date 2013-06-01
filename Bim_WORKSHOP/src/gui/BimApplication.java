@@ -1,5 +1,4 @@
 package gui;
-// Dies ist ein kleiner Einleitungssatz.....
 import gui.views.IfcObjectCountView;
 import gui.views.NochZuPutzenView;
 
