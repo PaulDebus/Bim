@@ -1,5 +1,6 @@
 package gui;
 // Komm an
+// Hund möge Katzen nicht
 import gui.views.IfcObjectCountView;
 import gui.views.NochZuPutzenView;
 
