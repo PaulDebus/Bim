@@ -1,5 +1,5 @@
 package gui;
-// kommt das an??
+// Komm an
 import gui.views.IfcObjectCountView;
 import gui.views.NochZuPutzenView;
 
