@@ -50,6 +50,17 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 				Meldung += " \n Anzahl der Gebäude: " + anzahlGebaeude;
 				Collection<IfcBuildingStorey> anzahlGeschosse = ifcModel.getCollection(IfcBuildingStorey.class);
 				Meldung += " \n Anzahl der Stockwerke: " + anzahlGeschosse;
+				
+				
+				String namenGeschosse = new String();
+				
+				for (IfcBuildingStorey akt : anzahlGeschosse)
+					namenGeschosse += akt.getName() + ", ";
+				
+				Meldung += " \n Namen der Geschosse: " + namenGeschosse;
+
+				
+				
 				objectCountTextArea.setText(Meldung);
 			objectCountTextArea.repaint();
 		}} 

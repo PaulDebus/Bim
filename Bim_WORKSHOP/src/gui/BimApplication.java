@@ -38,8 +38,8 @@ public class BimApplication extends JFrame {
 		this.setTitle("Bim Application"); // Titel
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		// schlie�en hei�t schlie�en
-		initComponents(); // initialisiere Knopf
 		initMenuBar();
+		initComponents(); // initialisiere Knopf
 		this.setVisible(true); // sichtbares Fenster (am besten nach fertiger
 								// Beschreibung!)
 	}
