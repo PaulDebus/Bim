@@ -3,6 +3,9 @@ package gui.views;
 import java.awt.BorderLayout;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import ifc2x3javatoolbox.ifc2x3tc1.ClassInterface;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcAxis1Placement;
@@ -18,6 +21,7 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
 import MVC.Fenster;
+import gui.views.StoreySort;
 
 public class IfcObjectCountView extends JPanel implements IfcModelListener {
 
@@ -54,12 +58,16 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 				
 				String namenGeschosse = new String();
 				
-				for (IfcBuildingStorey akt : anzahlGeschosse)
+				
+				List<IfcBuildingStorey> geschossListe = new ArrayList<>(anzahlGeschosse);
+				Comparator<IfcBuildingStorey> compareStorey = new StoreySort();
+				Collections.sort(geschossListe, compareStorey);
+
+				for (IfcBuildingStorey akt : geschossListe)
 					namenGeschosse += akt.getName() + ", ";
 				
 				Meldung += " \n Namen der Geschosse: " + namenGeschosse;
-
-				
+			
 				
 				objectCountTextArea.setText(Meldung);
 			objectCountTextArea.repaint();

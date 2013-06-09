@@ -1,11 +1,8 @@
 package gui;
 import gui.views.IfcObjectCountView;
-import gui.views.NochZuPutzenView;
-
 import ifc2x3javatoolbox.ifcmodel.IfcModel;
 
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
@@ -18,9 +15,6 @@ import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
-
-import MVC.Fenster;
-import MVC.Model;
 
 public class BimApplication extends JFrame {
 
