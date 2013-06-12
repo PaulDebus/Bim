@@ -12,13 +12,21 @@ import ifc2x3javatoolbox.ifc2x3tc1.IfcAxis1Placement;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcBuilding;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcBuildingStorey;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcDoor;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcObject;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcProject;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcRelDecomposes;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcSite;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcWall;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcWindow;
+import ifc2x3javatoolbox.ifc2x3tc1.SET;
 import ifc2x3javatoolbox.ifcmodel.IfcModel;
 import ifc2x3javatoolbox.ifcmodel.IfcModelListener;
 
 import javax.swing.JPanel;
+import javax.swing.JTable;
 import javax.swing.JTextArea;
+import javax.swing.table.AbstractTableModel;
+import javax.swing.table.TableModel;
 
 import MVC.Fenster;
 import gui.views.StoreySort;
@@ -27,6 +35,12 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 
 	private IfcModel ifcModel = null;
 	private JTextArea objectCountTextArea = null;
+	TableModel dataModel = new AbstractTableModel() {
+        public int getColumnCount() { return 10; }
+        public int getRowCount() { return 10;}
+        public Object getValueAt(int row, int col) { return new Integer(row+col);}
+    };
+	private JTable bauteilTable =  new JTable(dataModel);
 
 	public IfcObjectCountView(IfcModel ifcModel) {
 
@@ -37,6 +51,8 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 		this.setLayout(new BorderLayout());
 		this.add(objectCountTextArea, BorderLayout.CENTER);
 		this.add(objectCountTextArea);
+		this.add(bauteilTable,BorderLayout.SOUTH);
+		
 		updateView();
 	}
 
@@ -67,8 +83,41 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 					namenGeschosse += akt.getName() + ", ";
 				
 				Meldung += " \n Namen der Geschosse: " + namenGeschosse;
-			
+				Meldung += " \n ifcProject Decomposed: ";
+				try {
+					IfcProject ifcProject = ifcModel.getIfcProject();
+					SET<IfcRelDecomposes> ifcObjectDefinition = ifcProject.getIsDecomposedBy_Inverse();
+					IfcSite site = (IfcSite) ifcObjectDefinition.iterator().next().getRelatedObjects().iterator().next();
+					SET<IfcRelDecomposes> buildingList = site.getIsDecomposedBy_Inverse();
+
+					
+					String objectliste = new String();
+					for (IfcRelDecomposes object : buildingList)
+					{
+						IfcBuilding building = (IfcBuilding) object.getRelatedObjects().iterator().next();
+						objectliste += building.getName();
+					}
+					
+					Meldung += objectliste;
+				} catch (Exception e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
 				
+				int i = 0;
+				for(IfcBuildingStorey aktGeschoss : geschossListe)
+				{
+					i++;
+					bauteilTable.setValueAt(aktGeschoss.getName(), i, 1);
+					bauteilTable.setValueAt(aktGeschoss.getDescription() , i, 2);
+					bauteilTable.setValueAt(aktGeschoss.getElevation(), i, 3);
+					dataModel.setValueAt(aktGeschoss.getElevation(), i, 3);
+					//Meldung += " \n" + i;
+
+				}
+				dataModel.setValueAt("blablabla", 8, 8);
+				bauteilTable.setValueAt("ahgeöwhkaewjg", 9, 9);
+				bauteilTable.repaint();
 				objectCountTextArea.setText(Meldung);
 			objectCountTextArea.repaint();
 		}} 
