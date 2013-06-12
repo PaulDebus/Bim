@@ -35,11 +35,6 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 
 	private IfcModel ifcModel = null;
 	private JTextArea objectCountTextArea = null;
-	TableModel dataModel = new AbstractTableModel() {
-        public int getColumnCount() { return 10; }
-        public int getRowCount() { return 10;}
-        public Object getValueAt(int row, int col) { return new Integer(row+col);}
-    };
 
 	public IfcObjectCountView(IfcModel ifcModel) {
 
@@ -81,12 +76,39 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 					namenGeschosse += akt.getName() + ", ";
 				
 				Meldung += " \n Namen der Geschosse: " + namenGeschosse;
-				Meldung += " \n ifcProject Decomposed: ";
+				Meldung += " \n Gelände: ";
 				try {
 					IfcProject ifcProject = ifcModel.getIfcProject();
 					SET<IfcRelDecomposes> ifcObjectDefinition = ifcProject.getIsDecomposedBy_Inverse();
-					IfcSite site = (IfcSite) ifcObjectDefinition.iterator().next().getRelatedObjects().iterator().next();
-					SET<IfcRelDecomposes> buildingList = site.getIsDecomposedBy_Inverse();
+					for (IfcRelDecomposes siteDecomp : ifcObjectDefinition)
+					{
+						IfcSite site = (IfcSite) ifcObjectDefinition.iterator().next().getRelatedObjects().iterator().next();
+						Meldung += site.getName();
+						SET<IfcRelDecomposes> buildingList = site.getIsDecomposedBy_Inverse();
+						for (IfcRelDecomposes buildingIt : buildingList)
+						{
+							IfcBuilding building = (IfcBuilding) buildingIt.getRelatedObjects().iterator().next();
+							Meldung += "\n Gebäude: " + building.getName();
+							
+							SET<IfcRelDecomposes> storeyContainer = building.getIsDecomposedBy_Inverse();
+							Meldung += "\n kontäner: " + storeyContainer.iterator().next().getName();
+							for (IfcRelDecomposes storeyList : storeyContainer)
+							{
+								//for (IfcBuildingStorey storey : storeyList.getRelatedObjects())
+								Meldung += "\n StoreyContainer: " + storeyList.getRelatedObjects().iterator().next().getName();
+								
+							}
+							/*for (int i=0;  i< storeyList.size();i++)
+							{
+								Meldung += "\n " + storeyList.iterator().next().getName();
+								//IfcBuildingStorey storey = (IfcBuildingStorey) storeyList.iterator().next().getRelatedObjects();
+								//Meldung += "\n Stockwerk: " + storey.getName();
+							}*/
+						}
+						
+						
+					}
+					/*SET<IfcRelDecomposes> buildingList = site.getIsDecomposedBy_Inverse();
 
 					
 					String objectliste = new String();
@@ -97,7 +119,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 					}
 					
 					Meldung += objectliste;
-				} catch (Exception e) {
+			*/	} catch (Exception e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
