@@ -40,7 +40,6 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
         public int getRowCount() { return 10;}
         public Object getValueAt(int row, int col) { return new Integer(row+col);}
     };
-	private JTable bauteilTable =  new JTable(dataModel);
 
 	public IfcObjectCountView(IfcModel ifcModel) {
 
@@ -51,7 +50,6 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 		this.setLayout(new BorderLayout());
 		this.add(objectCountTextArea, BorderLayout.CENTER);
 		this.add(objectCountTextArea);
-		this.add(bauteilTable,BorderLayout.SOUTH);
 		
 		updateView();
 	}
@@ -103,21 +101,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
-				
-				int i = 0;
-				for(IfcBuildingStorey aktGeschoss : geschossListe)
-				{
-					i++;
-					bauteilTable.setValueAt(aktGeschoss.getName(), i, 1);
-					bauteilTable.setValueAt(aktGeschoss.getDescription() , i, 2);
-					bauteilTable.setValueAt(aktGeschoss.getElevation(), i, 3);
-					dataModel.setValueAt(aktGeschoss.getElevation(), i, 3);
-					//Meldung += " \n" + i;
 
-				}
-				dataModel.setValueAt("blablabla", 8, 8);
-				bauteilTable.setValueAt("ahgeöwhkaewjg", 9, 9);
-				bauteilTable.repaint();
 				objectCountTextArea.setText(Meldung);
 			objectCountTextArea.repaint();
 		}} 

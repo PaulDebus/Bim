@@ -28,7 +28,7 @@ public class BimApplication extends JFrame {
 	public BimApplication() {
 		ifcModel = new IfcModel();
 
-		this.setSize(1600, 860); // Fenstergr��e
+		this.setSize(1024, 768); // Fenstergr��e
 		this.setTitle("Bim Application"); // Titel
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		// schlie�en hei�t schlie�en
