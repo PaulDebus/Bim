@@ -13,6 +13,7 @@ import ifc2x3javatoolbox.ifc2x3tc1.IfcBuilding;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcBuildingStorey;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcDoor;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcObject;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcObjectDefinition;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcProject;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcRelDecomposes;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcSite;
@@ -76,7 +77,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 					namenGeschosse += akt.getName() + ", ";
 				
 				Meldung += " \n Namen der Geschosse: " + namenGeschosse;
-				Meldung += " \n Gelände: ";
+				Meldung += " \n Gelï¿½nde: ";
 				try {
 					IfcProject ifcProject = ifcModel.getIfcProject();
 					SET<IfcRelDecomposes> ifcObjectDefinition = ifcProject.getIsDecomposedBy_Inverse();
@@ -88,16 +89,25 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 						for (IfcRelDecomposes buildingIt : buildingList)
 						{
 							IfcBuilding building = (IfcBuilding) buildingIt.getRelatedObjects().iterator().next();
-							Meldung += "\n Gebäude: " + building.getName();
+							Meldung += "\n Gebï¿½ude: " + building.getName();
 							
-							SET<IfcRelDecomposes> storeyContainer = building.getIsDecomposedBy_Inverse();
-							Meldung += "\n kontäner: " + storeyContainer.iterator().next().getName();
-							for (IfcRelDecomposes storeyList : storeyContainer)
+							SET<IfcObjectDefinition> storeyList = building.getIsDecomposedBy_Inverse().iterator().next().getRelatedObjects();
+							
+							for (IfcObjectDefinition storey : storeyList)
 							{
-								//for (IfcBuildingStorey storey : storeyList.getRelatedObjects())
-								Meldung += "\n StoreyContainer: " + storeyList.getRelatedObjects().iterator().next().getName();
-								
+								IfcBuildingStorey soreystorey = (IfcBuildingStorey) storey;
+								Meldung += "\n for Schleife" + soreystorey.getName();
 							}
+							
+							Meldung += "\n Storeylist: " + storeyList;
+							
+//							Meldung += "\n kontï¿½ner: " + storeyContainer.iterator().next().getName() + storeyContainer.size();
+//							for (IfcRelDecomposes storeyList : storeyContainer)
+//							{
+//								//for (IfcBuildingStorey storey : storeyList.getRelatedObjects())
+//								Meldung += "\n StoreyContainer: " + storeyList.getRelatedObjects().iterator().next().getName();
+//								
+//							}
 							/*for (int i=0;  i< storeyList.size();i++)
 							{
 								Meldung += "\n " + storeyList.iterator().next().getName();
