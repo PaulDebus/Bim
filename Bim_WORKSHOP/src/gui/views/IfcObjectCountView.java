@@ -16,6 +16,7 @@ import ifc2x3javatoolbox.ifc2x3tc1.IfcDoor;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcLabel;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcMaterial;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcMaterialLayerSetUsage;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcMaterialSelect;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcObject;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcObjectDefinition;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcProduct;
@@ -125,8 +126,10 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 												IfcWallStandardCase wall = (IfcWallStandardCase) containedInStorey;
 //												wallList.add(wall);
 												IfcRelAssociatesMaterial materialAsso = (IfcRelAssociatesMaterial) wall.getHasAssociations_Inverse().iterator().next();
-												String material = materialAsso.getRelatingMaterial().
+												IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();
+												IfcLabel material = materialSelect.getForLayerSet().getMaterialLayers().iterator().next().getMaterial().getName();
 												Meldung += "\n Switch Wall" + wall.getName() + material;
+												break;
 											}
 										default: Meldung += "\n nicht in switch" + containedInStorey.getClass().getName();
 									}
