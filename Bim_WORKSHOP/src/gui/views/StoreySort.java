@@ -8,13 +8,13 @@ public class StoreySort implements Comparator<IfcBuildingStorey>{
 	
 	public int compare(IfcBuildingStorey StoreyA, IfcBuildingStorey StoreyB)
 	{	
-		int nummerA = StoreyA.getStepLineNumber();
-		int nummerB = StoreyB.getStepLineNumber();
+		double nummerA = StoreyA.getElevation().value;
+		double nummerB = StoreyB.getElevation().value;
 		
 		if (nummerA < nummerB)
 			return -1;
-		
-		return 1;
+		else
+			return 1;
 	}
 
 }

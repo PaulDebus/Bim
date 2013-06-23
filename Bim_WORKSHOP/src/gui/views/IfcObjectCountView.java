@@ -6,18 +6,26 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Set;
 
 import ifc2x3javatoolbox.ifc2x3tc1.ClassInterface;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcAxis1Placement;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcBuilding;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcBuildingStorey;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcDoor;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcLabel;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcMaterial;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcObject;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcObjectDefinition;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcProduct;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcProject;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcRelAssociatesMaterial;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcRelDecomposes;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcRelDefines;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcSite;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcSpace;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcWall;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcWallStandardCase;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcWindow;
 import ifc2x3javatoolbox.ifc2x3tc1.SET;
 import ifc2x3javatoolbox.ifcmodel.IfcModel;
@@ -89,17 +97,69 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 						for (IfcRelDecomposes buildingIt : buildingList)
 						{
 							IfcBuilding building = (IfcBuilding) buildingIt.getRelatedObjects().iterator().next();
-							Meldung += "\n Geb�ude: " + building.getName();
+							Meldung += "\n Gebäude: " + building.getName();
 							
 							SET<IfcObjectDefinition> storeyList = building.getIsDecomposedBy_Inverse().iterator().next().getRelatedObjects();
 							
-							for (IfcObjectDefinition storey : storeyList)
+							for (IfcObjectDefinition storeyDefinition : storeyList)
 							{
-								IfcBuildingStorey soreystorey = (IfcBuildingStorey) storey;
-								Meldung += "\n for Schleife" + soreystorey.getName();
+								IfcBuildingStorey storey = (IfcBuildingStorey) storeyDefinition;
+								Meldung += "\n Geschoss: " + storey.getName() + "\n";
+								
+																
+								SET<IfcProduct> containedInStoreyList = storey.getContainsElements_Inverse().iterator().next().getRelatedElements();
+								
+								SET<IfcWallStandardCase> wallList = null;
+								SET<IfcWindow> windowList = null;
+								SET<IfcDoor> doorList = null;
+								
+								for (IfcProduct containedInStorey : containedInStoreyList)
+								{
+									
+									switch (containedInStorey.getClass().getName()) 
+									{
+										case "ifc2x3javatoolbox.ifc2x3tc1.IfcWallStandardCase": 
+											{
+												IfcWallStandardCase wall = (IfcWallStandardCase) containedInStorey;
+//												wallList.add(wall);
+												IfcRelAssociatesMaterial
+												IfcLabel material = wall.getHasAssociations_Inverse().iterator().next().getRelatedMaterial;
+												Meldung += "\n Switch Wall" + wall.getName() + material;
+											}
+										default: Meldung += "\n nicht in switch" + containedInStorey.getClass().getName();
+									}
+									
+									
+									
+//									IfcSpace spatialStructure = (IfcSpace) containedInStoreyList;
+//									Meldung += ", Space: " + space.getName();								
+//								
+//									SET<IfcObject> wallDefinition = space.getIsDefinedBy_Inverse().iterator().next().getRelatedObjects();
+//							
+//									for (IfcObject wallList : wallDefinition)
+//									{
+//										IfcWall wall = (IfcWall) wallList;
+//										Meldung += "\n Wand: " + wall.getName();	
+//									}
+								}
+								
+//								SET<IfcObjectDefinition> spaceDefinition = storey.getIsDecomposedBy_Inverse().iterator().next().getRelatedObjects();
+//								
+//								for (IfcObjectDefinition spaceList : spaceDefinition)
+//								{
+//									IfcSpace space = (IfcSpace) spaceList;
+//									Meldung += ", Space: " + space.getName();								
+//								
+//									SET<IfcObject> wallDefinition = space.getIsDefinedBy_Inverse().iterator().next().getRelatedObjects();
+//							
+//									for (IfcObject wallList : wallDefinition)
+//									{
+//										IfcWall wall = (IfcWall) wallList;
+//										Meldung += "\n Wand: " + wall.getName();	
+//									}
+//								}
 							}
 							
-							Meldung += "\n Storeylist: " + storeyList;
 							
 //							Meldung += "\n kont�ner: " + storeyContainer.iterator().next().getName() + storeyContainer.size();
 //							for (IfcRelDecomposes storeyList : storeyContainer)
