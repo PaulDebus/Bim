@@ -25,11 +25,14 @@ import ifc2x3javatoolbox.ifc2x3tc1.IfcRelAssociates;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcRelAssociatesMaterial;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcRelDecomposes;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcRelDefines;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcRelDefinesByType;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcSite;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcSpace;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcSpatialStructureElement;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcWall;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcWallStandardCase;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcWindow;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcWindowStyle;
 import ifc2x3javatoolbox.ifc2x3tc1.SET;
 import ifc2x3javatoolbox.ifcmodel.IfcModel;
 import ifc2x3javatoolbox.ifcmodel.IfcModelListener;
@@ -61,7 +64,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 		updateView();
 	}
 
-	private void updateView() {
+	private void updateView(Class<? extends IfcRelDefines> IfcRelDefinesByType) {
 
 		try {
 			if (ifcModel.getCollection(IfcWindow.class) != null) {
@@ -102,15 +105,20 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 							IfcBuilding building = (IfcBuilding) buildingIt.getRelatedObjects().iterator().next();
 							Meldung += "\n Gebäude: " + building.getName();
 							
-							SET<IfcObjectDefinition> storeyList = building.getIsDecomposedBy_Inverse().iterator().next().getRelatedObjects();
-							
+							SET<IfcObjectDefinition> storeyList = (building.getIsDecomposedBy_Inverse().iterator().next().getRelatedObjects();
+							List<IfcBuildingStorey> listedStoreys = new ArrayList<>();
 							for (IfcObjectDefinition storeyDefinition : storeyList)
 							{
-								IfcBuildingStorey storey = (IfcBuildingStorey) storeyDefinition;
+								listedStoreys.add((IfcBuildingStorey) storeyDefinition);
+							}
+
+							Comparator<IfcBuildingStorey> storeyCompare = new StoreySort();
+							Collections.sort(listedStoreys, storeyCompare);
+							for (IfcObjectDefinition storey : listedStoreys)
+							{
 								Meldung += "\n Geschoss: " + storey.getName() + "\n";
-								
 																
-								SET<IfcProduct> containedInStoreyList = storey.getContainsElements_Inverse().iterator().next().getRelatedElements();
+								SET<IfcProduct> containedInStoreyList = ((IfcSpatialStructureElement) storey).getContainsElements_Inverse().iterator().next().getRelatedElements();
 								
 								SET<IfcWallStandardCase> wallList = null;
 								SET<IfcWindow> windowList = null;
@@ -129,6 +137,19 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 												IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();
 												IfcLabel material = materialSelect.getForLayerSet().getMaterialLayers().iterator().next().getMaterial().getName();
 												Meldung += "\n Switch Wall" + wall.getName() + material;
+												break;
+											}
+										case "ifc2x3javatoolbox.ifc2x3tc1.IfcWindow": 
+											{
+												IfcWindow window = (IfcWindow) containedInStorey;
+												IfcRelDefinesByType windowType = (IfcRelDefinesByType) window.getIsDefinedBy_Inverse().iterator().next();
+												IfcWindowStyle windowStyle = (IfcWindowStyle) windowType.getRelatingType();
+												String material = (String) windowStyle.getConstructionType().toString();
+	//											wallList.add(wall);
+	//											IfcRelAssociatesMaterial materialAsso = (IfcRelAssociatesMaterial) wall.getHasAssociations_Inverse().iterator().next();
+	//											IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();
+	//											IfcLabel material = materialSelect.getForLayerSet().getMaterialLayers().iterator().next().getMaterial().getName();
+												Meldung += "\n Switch Window" + window.getName() + material;
 												break;
 											}
 										default: Meldung += "\n nicht in switch" + containedInStorey.getClass().getName();
