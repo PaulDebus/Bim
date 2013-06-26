@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
 
@@ -206,14 +207,27 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 										case "ifc2x3javatoolbox.ifc2x3tc1.IfcWindow": 
 											{
 												IfcWindow window = (IfcWindow) containedInStorey;
-												IfcRelDefinesByType windowType = (IfcRelDefinesByType) window.getIsDefinedBy_Inverse().iterator().next();
-												IfcWindowStyle windowStyle = (IfcWindowStyle) windowType.getRelatingType();
-												String material = (String) windowStyle.getConstructionType().toString();
+												
+												Iterator<IfcRelDefines> iterator = window.getIsDefinedBy_Inverse().iterator();
+												while(iterator.hasNext())
+												{
+													IfcRelDefines ifcRelDefines = iterator.next();
+													if(ifcRelDefines instanceof IfcRelDefinesByType)
+													{
+														IfcRelDefinesByType definesByType = (IfcRelDefinesByType)ifcRelDefines;
+														IfcWindowStyle ifcWindowStyle = (IfcWindowStyle)definesByType.getRelatingType();
+														Meldung += "\n Material des Fensters: " + ifcWindowStyle.getConstructionType().value;
+													}
+												}
+												
+												//IfcRelDefinesByType windowType = (IfcRelDefinesByType) window.getIsDefinedBy_Inverse().iterator().next();
+												//IfcWindowStyle windowStyle = (IfcWindowStyle) windowType.getRelatingType();
+												//String material = (String) windowStyle.getConstructionType().toString();
 	//											wallList.add(wall);
 	//											IfcRelAssociatesMaterial materialAsso = (IfcRelAssociatesMaterial) wall.getHasAssociations_Inverse().iterator().next();
 	//											IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();
 	//											IfcLabel material = materialSelect.getForLayerSet().getMaterialLayers().iterator().next().getMaterial().getName();
-												Meldung += "\n Switch Window" + window.getName() + material;
+												//Meldung += "\n Switch Window" + window.getName() + material;
 												break;
 											}
 										default: Meldung += "\n nicht in switch" + containedInStorey.getClass().getName();
