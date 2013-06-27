@@ -11,10 +11,12 @@ import java.util.List;
 import java.util.Set;
 
 import ifc2x3javatoolbox.ifc2x3tc1.ClassInterface;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcAnnotation;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcAxis1Placement;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcBuilding;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcBuildingStorey;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcDoor;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcDoorStyle;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcElementQuantity;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcLabel;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcMaterial;
@@ -35,8 +37,10 @@ import ifc2x3javatoolbox.ifc2x3tc1.IfcRelDefines;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcRelDefinesByProperties;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcRelDefinesByType;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcSite;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcSlab;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcSpace;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcSpatialStructureElement;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcStair;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcTypeObject;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcVolumeMeasure;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcWall;
@@ -81,31 +85,30 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 
 		try {
 			if (ifcModel.getCollection(IfcWindow.class) != null) {
-				
-				int anzahlFenster = ifcModel.getCollection(IfcWindow.class).size();
-				String Meldung = "Anzahl der Fenster: " + anzahlFenster;
-				int anzahlTueren = ifcModel.getCollection(IfcDoor.class).size();
-				Meldung += " \n Anzahl der Türen: " + anzahlTueren;
-				int anzahlWaende = ifcModel.getCollection(IfcWall.class).size();
-				Meldung += " \n Anzahl der Wände: " + anzahlWaende;
-				int anzahlGebaeude = ifcModel.getCollection(IfcBuilding.class).size();
-				Meldung += " \n Anzahl der Gebäude: " + anzahlGebaeude;
-				Collection<IfcBuildingStorey> anzahlGeschosse = ifcModel.getCollection(IfcBuildingStorey.class);
-				Meldung += " \n Anzahl der Stockwerke: " + anzahlGeschosse;
-				
-				
-				String namenGeschosse = new String();
-				
-				
-				List<IfcBuildingStorey> geschossListe = new ArrayList<>(anzahlGeschosse);
-				Comparator<IfcBuildingStorey> compareStorey = new StoreySort();
-				Collections.sort(geschossListe, compareStorey);
-
-				for (IfcBuildingStorey akt : geschossListe)
-					namenGeschosse += akt.getName() + ", ";
-				
-				Meldung += " \n Namen der Geschosse: " + namenGeschosse;
-				Meldung += " \n Gel�nde: ";
+				String Meldung = new String();
+//				int anzahlFenster = ifcModel.getCollection(IfcWindow.class).size();
+//				String Meldung = "Anzahl der Fenster: " + anzahlFenster;
+//				int anzahlTueren = ifcModel.getCollection(IfcDoor.class).size();
+//				Meldung += " \n Anzahl der Türen: " + anzahlTueren;
+//				int anzahlWaende = ifcModel.getCollection(IfcWall.class).size();
+//				Meldung += " \n Anzahl der Wände: " + anzahlWaende;
+//				int anzahlGebaeude = ifcModel.getCollection(IfcBuilding.class).size();
+//				Meldung += " \n Anzahl der Gebäude: " + anzahlGebaeude;
+//				Collection<IfcBuildingStorey> anzahlGeschosse = ifcModel.getCollection(IfcBuildingStorey.class);
+//				Meldung += " \n Anzahl der Stockwerke: " + anzahlGeschosse;
+//				
+//				String namenGeschosse = new String();
+//				
+//				
+//				List<IfcBuildingStorey> geschossListe = new ArrayList<>(anzahlGeschosse);
+//				Comparator<IfcBuildingStorey> compareStorey = new StoreySort();
+//				Collections.sort(geschossListe, compareStorey);
+//
+//				for (IfcBuildingStorey akt : geschossListe)
+//					namenGeschosse += akt.getName() + ", ";
+//				
+//				Meldung += " \n Namen der Geschosse: " + namenGeschosse;
+//				Meldung += " \n Gel�nde: ";
 				try {
 					// Initialisieren des Projektes aus dem Model
 					IfcProject ifcProject = ifcModel.getIfcProject();
@@ -143,7 +146,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 							Collections.sort(listedStoreys, storeyCompare);
 							for (IfcObjectDefinition storey : listedStoreys)
 							{
-								Meldung += "\n Geschoss: " + storey.getName() + "\n";
+								Meldung += "\n \n \n Geschoss: " + storey.getName() + "\n \n \n";
 								// Speichern aller Unterwerte des aktuellen Stockwerkes in Set containedInStoreyList
 								SET<IfcProduct> containedInStoreyList = ((IfcSpatialStructureElement) storey).getContainsElements_Inverse().iterator().next().getRelatedElements();
 								
@@ -156,11 +159,10 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 								for (IfcProduct containedInStorey : containedInStoreyList)
 								{
 									// Unterscheidung der einzelnen Bauteile über den Namen ihrer Klasse mittels eines switch
-									switch (containedInStorey.getClass().getName()) 
+									if (containedInStorey instanceof IfcWallStandardCase)
 									{
 										// falls es sich um eine Wand handelt
-										case "ifc2x3javatoolbox.ifc2x3tc1.IfcWallStandardCase": 
-											{
+										{
 												// Casten in IfcWallStandardCase 
 												IfcWallStandardCase wall = (IfcWallStandardCase) containedInStorey;
 												// Abfragen des Materials: da es sich um eine Wand handelt, wird IfcMaterialLayerSetUsage verwendet
@@ -202,24 +204,104 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 														}
 													}
 												}
-												break;
+									}
 											
-										case "ifc2x3javatoolbox.ifc2x3tc1.IfcWindow": 
+									else if (containedInStorey instanceof IfcWindow)
+									{
+										IfcWindow window = (IfcWindow) containedInStorey;
+										
+										Iterator<IfcRelDefines> iterator = window.getIsDefinedBy_Inverse().iterator();
+										while(iterator.hasNext())
+										{
+											IfcRelDefines ifcRelDefines = iterator.next();
+											if(ifcRelDefines instanceof IfcRelDefinesByType)
 											{
-												IfcWindow window = (IfcWindow) containedInStorey;
+												IfcRelDefinesByType definesByType = (IfcRelDefinesByType)ifcRelDefines;
+												IfcWindowStyle ifcWindowStyle = (IfcWindowStyle)definesByType.getRelatingType();
+												Meldung += "\n Material des Fensters: " + ifcWindowStyle.getConstructionType().value;
+											}
+										}
+									}
+
+//									else if (containedInStorey instanceof IfcStair)
+//									{
+//										IfcStair stair = (IfcStair) containedInStorey;
+//										
+//										Iterator<IfcRelDefines> iterator = stair.getIsDefinedBy_Inverse().iterator();
+//										while(iterator.hasNext())
+//										{
+//											IfcRelDefines ifcRelDefines = iterator.next();
+//											if(ifcRelDefines instanceof IfcRelDefinesByType)
+//											{
+//												IfcRelDefinesByType definesByType = (IfcRelDefinesByType)ifcRelDefines;
+//												IfcStair ifcWindowStyle = (IfcWindowStyle)definesByType.getRelatingType();
+//												Meldung += "\n Material des Fensters: " + ifcWindowStyle.getConstructionType().value;
+//											}
+//										}
+//									}
+									
+									else if (containedInStorey instanceof IfcWindow)
+									{
+										IfcWindow window = (IfcWindow) containedInStorey;
+										
+										Iterator<IfcRelDefines> iterator = window.getIsDefinedBy_Inverse().iterator();
+										while(iterator.hasNext())
+										{
+											IfcRelDefines ifcRelDefines = iterator.next();
+											if(ifcRelDefines instanceof IfcRelDefinesByType)
+											{
+												IfcRelDefinesByType definesByType = (IfcRelDefinesByType)ifcRelDefines;
+												IfcWindowStyle ifcWindowStyle = (IfcWindowStyle)definesByType.getRelatingType();
+												Meldung += "\n Material des Fensters: " + ifcWindowStyle.getConstructionType().value;
+											}
+										}
+									}
 												
-												Iterator<IfcRelDefines> iterator = window.getIsDefinedBy_Inverse().iterator();
+										else if (containedInStorey instanceof IfcDoor)
+										{
+												IfcDoor door = (IfcDoor) containedInStorey;
+												Iterator<IfcRelDefines> iterator = door.getIsDefinedBy_Inverse().iterator();
 												while(iterator.hasNext())
 												{
 													IfcRelDefines ifcRelDefines = iterator.next();
 													if(ifcRelDefines instanceof IfcRelDefinesByType)
 													{
 														IfcRelDefinesByType definesByType = (IfcRelDefinesByType)ifcRelDefines;
-														IfcWindowStyle ifcWindowStyle = (IfcWindowStyle)definesByType.getRelatingType();
-														Meldung += "\n Material des Fensters: " + ifcWindowStyle.getConstructionType().value;
+														IfcDoorStyle ifcDoorStyle = (IfcDoorStyle)definesByType.getRelatingType();
+														Meldung += "\n Material der Tür: " + ifcDoorStyle.getConstructionType().value;
 													}
 												}
+										}
 												
+										else if (containedInStorey instanceof IfcAnnotation)
+										{
+											continue;
+										}
+										else if (containedInStorey instanceof IfcSlab)
+										{
+											
+											// Casten in IfcSlab 
+									IfcSlab slab = (IfcSlab) containedInStorey;
+									// Abfragen des Materials: da es sich um eine Deckenplatte handelt, wird IfcMaterialLayerSetUsage verwendet
+									// Speichern und Casten von IfcRelAssociatesMaterial, IfcMaterialLayerSetUsage, IfcMaterial
+									IfcRelAssociatesMaterial materialAsso = (IfcRelAssociatesMaterial) slab.getHasAssociations_Inverse().iterator().next();
+									
+									IfcMaterial material = null;
+									
+									if (materialAsso.getRelatingMaterial() instanceof IfcMaterial)
+									{
+										material = (IfcMaterial) materialAsso.getRelatingMaterial();	
+									}
+									
+									if (materialAsso.getRelatingMaterial() instanceof IfcMaterialLayerSetUsage)
+									{
+										IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();	
+										material = materialSelect.getForLayerSet().getMaterialLayers().iterator().next().getMaterial();
+									}
+//									IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();
+									
+								// += "\n Platte: " + slab.getName() + " bestehend aus  " + material_slab + d;
+									//bauteild = new Bauteile(storey, Objektname, slab.getName(), d, Volum);
 												//IfcRelDefinesByType windowType = (IfcRelDefinesByType) window.getIsDefinedBy_Inverse().iterator().next();
 												//IfcWindowStyle windowStyle = (IfcWindowStyle) windowType.getRelatingType();
 												//String material = (String) windowStyle.getConstructionType().toString();
@@ -227,12 +309,12 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 	//											IfcRelAssociatesMaterial materialAsso = (IfcRelAssociatesMaterial) wall.getHasAssociations_Inverse().iterator().next();
 	//											IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();
 	//											IfcLabel material = materialSelect.getForLayerSet().getMaterialLayers().iterator().next().getMaterial().getName();
-												//Meldung += "\n Switch Window" + window.getName() + material;
-												break;
-											}
-										default: Meldung += "\n nicht in switch" + containedInStorey.getClass().getName();
+									Meldung += "\n DeckenplatteDeckenplatte" + slab.getName() + material.getName();
+										}
+										else Meldung += "\n nicht in switchnicht in switchnicht in switchnicht in switchnicht in switchnicht in switch" + containedInStorey.getClass().getName();
 									}
-									
+							}
+						}
 									
 									
 //									IfcSpace spatialStructure = (IfcSpace) containedInStoreyList;
@@ -262,9 +344,6 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 //										Meldung += "\n Wand: " + wall.getName();	
 //									}
 //								}
-							}
-							
-							
 //							Meldung += "\n kont�ner: " + storeyContainer.iterator().next().getName() + storeyContainer.size();
 //							for (IfcRelDecomposes storeyList : storeyContainer)
 //							{
@@ -278,10 +357,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 								//IfcBuildingStorey storey = (IfcBuildingStorey) storeyList.iterator().next().getRelatedObjects();
 								//Meldung += "\n Stockwerk: " + storey.getName();
 							}*/
-						}
-						
-						
-					}
+
 					/*SET<IfcRelDecomposes> buildingList = site.getIsDecomposedBy_Inverse();
 
 					

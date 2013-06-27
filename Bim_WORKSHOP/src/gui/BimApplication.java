@@ -13,6 +13,7 @@ import javax.swing.JMenu;
 import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
+import javax.swing.JScrollPane;
 import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
@@ -109,6 +110,8 @@ public class BimApplication extends JFrame {
 		tabbedPane.add(ifcObjectCountView = new IfcObjectCountView(ifcModel),
 				"Fenster Count", 0);
 		// 0 ist Position
+		JScrollPane scrollpane = new JScrollPane(ifcObjectCountView);
+		add(scrollpane);
 	}
 
 	public static void main(String[] args) {
