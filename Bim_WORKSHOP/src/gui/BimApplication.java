@@ -89,7 +89,6 @@ public class BimApplication extends JFrame {
 	}
 
 	private void initComponents() {
-		// button = new JButton("Oh ein Knopf");
 		this.setLayout(new BorderLayout()); // nutze borderlayout als layout
 											// manager
 
@@ -100,11 +99,7 @@ public class BimApplication extends JFrame {
 		// aufteilung des fensters Vertikal
 		this.add(splitPane, BorderLayout.CENTER); // ins mittlere layout
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
-		leftPanel = new JPanel(); // linkes panel deklariert
-		splitPane.add(tabbedPane); // tabbedpane hinzuf�gen
-		tabbedPane.add(ifcObjectCountView = new IfcObjectCountView(ifcModel),
-				"Fenster Count", 0);
-
+		tabbedPane.add(ifcObjectCountView = new IfcObjectCountView(ifcModel),"Fenster Count", 0);
 		JScrollPane scrollpane = new JScrollPane(ifcObjectCountView);
 		add(scrollpane);
 	}
