@@ -71,6 +71,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 		Double volumeofWalls = 0.0;
 		String wallMaterial = new String();
 		String Meldung = new String();
+		ArrayList<String> slabMaterial = new ArrayList<>();
 		try {
 			if (ifcModel.getCollection(IfcWindow.class) != null) {
 				
@@ -120,6 +121,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 								
 								numberofWalls = 0;
 								volumeofWalls = 0.0;
+								slabMaterial.clear();
 								
 								//Schleife Ã¼ber das Set containedInStorey, Initialisierung der einzelnen Elemente als Variable containedInStoreyList
 								for (IfcProduct containedInStorey : containedInStoreyList)
@@ -137,6 +139,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 												IfcRelAssociatesMaterial materialAsso = (IfcRelAssociatesMaterial) wall.getHasAssociations_Inverse().iterator().next();
 												IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();
 												IfcMaterial material = materialSelect.getForLayerSet().getMaterialLayers().iterator().next().getMaterial();
+												wallMaterial = material.getName().toString();
 												//Meldung += "\n Material: " + material.getName();
 												
 												// Speichern aller Definitionen der aktuellen Wand in das Set relDefinesList
@@ -255,11 +258,28 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 										IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();	
 										material = materialSelect.getForLayerSet().getMaterialLayers().iterator().next().getMaterial();
 									}
-									Meldung += "\n Platte" + slab.getName() + material.getName();
+									boolean enthalten = false; 
+									for (int i= 0; i<  slabMaterial.size()/2; i++) {
+										int j = 2*i;
+										if (slabMaterial.get(j) == material.getName().toString()){
+											slabMaterial.set(j+1, slabMaterial.get(j+1)+1);
+											enthalten = true;
+											break;
+										}
+									}
+									if (!enthalten) {
+										slabMaterial.add(material.getName().toString());
+										slabMaterial.add("1");
+									}
 										}
 										else Meldung += "\n nicht in switchnicht in switchnicht in switchnicht in switchnicht in switchnicht in switch" + containedInStorey.getClass().getName();
 									}
-								Meldung += "\n \n \n Anzahl der Wände in diesem Geschoss: " + numberofWalls + ", Gesamtvolumen: " + Math.round(volumeofWalls*100)/100.0 + "m^3, Material der Wände: " + wallMaterial ; 
+								Meldung += "\n Wände\n Anzahl: " + "		" + numberofWalls + "\n Gesamtvolumen: " + "	" + Math.round(volumeofWalls*100)/100.0 + "m^3 \n  Material: " + "		" + wallMaterial ; 
+								Meldung += "\n \n Platten: \n Material und Anzahl: ";
+								for (int i=0; i< slabMaterial.size()/2; i++) {
+									int j = 2*i;
+									Meldung += "\n" + slabMaterial.get(j) + "		" + slabMaterial.get(j+1).length();
+								}
 							}
 						}
 									
