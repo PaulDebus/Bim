@@ -72,6 +72,9 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 		String wallMaterial = new String();
 		String Meldung = new String();
 		ArrayList<String> slabMaterial = new ArrayList<>();
+		ArrayList<String> windowMaterial = new ArrayList<>();
+		ArrayList<String> doorMaterial = new ArrayList<>();
+		String windowMeldung = new String();
 		try {
 			if (ifcModel.getCollection(IfcWindow.class) != null) {
 				
@@ -130,7 +133,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 									if (containedInStorey instanceof IfcWallStandardCase)
 									{
 										// falls es sich um eine Wand handelt
-										{
+										
 												// Casten in IfcWallStandardCase 
 												IfcWallStandardCase wall = (IfcWallStandardCase) containedInStorey;
 												numberofWalls++;
@@ -174,7 +177,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 															}
 														}
 													}
-												}
+												
 									}
 											
 									else if (containedInStorey instanceof IfcWindow)
@@ -192,13 +195,30 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 											{
 												IfcRelDefinesByType definesByType = (IfcRelDefinesByType)ifcRelDefines;
 												IfcWindowStyle ifcWindowStyle = (IfcWindowStyle)definesByType.getRelatingType();
-												Meldung += "\n Material des Fensters: " + ifcWindowStyle.getConstructionType().value;
+												//Meldung += "\n Material des Fensters: " + ifcWindowStyle.getConstructionType().value;
+										
+												
+												String material = ifcWindowStyle.getConstructionType().value.toString();
+										boolean enthalten = false; 
+										for (int i= 0; i<  windowMaterial.size()/2; i++) {
+											int j = 2*i;
+											if (windowMaterial.get(j) == material){
+												windowMaterial.set(j+1, windowMaterial.get(j+1)+1);
+												enthalten = true;
+												break;
 											}
 										}
-										Meldung += ", Höhe: " + height.toString() + "m Breite: " + width.value + "m";
+										if (!enthalten) {
+											windowMaterial.add(material);
+											windowMaterial.add("1");
+										}
+											}
+										}
+									
 										
+										
+										//Meldung += ", Höhe: " + height.toString() + "m Breite: " + width.value + "m";
 									}
-
 									else if (containedInStorey instanceof IfcStair)
 									{
 										IfcStair stair = (IfcStair) containedInStorey;									
@@ -228,10 +248,27 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 													{
 														IfcRelDefinesByType definesByType = (IfcRelDefinesByType)ifcRelDefines;
 														IfcDoorStyle ifcDoorStyle = (IfcDoorStyle)definesByType.getRelatingType();
-														Meldung += "\n Material der Tür: " + ifcDoorStyle.getConstructionType().value;
+														//Meldung += "\n Material der Tür: " + ifcDoorStyle.getConstructionType().value;
+												
+														
+														String material = ifcDoorStyle.getConstructionType().value.toString();
+												boolean enthalten = false; 
+												for (int i= 0; i<  doorMaterial.size()/2; i++) {
+													int j = 2*i;
+													if (doorMaterial.get(j) == material){
+														doorMaterial.set(j+1, doorMaterial.get(j+1)+1);
+														enthalten = true;
+														break;
 													}
 												}
-										}
+												if (!enthalten) {
+													doorMaterial.add(material);
+													doorMaterial.add("1");
+												
+												}
+													}
+													
+												}}
 												
 										else if (containedInStorey instanceof IfcAnnotation)
 										{
@@ -275,6 +312,20 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 										else Meldung += "\n nicht in switchnicht in switchnicht in switchnicht in switchnicht in switchnicht in switch" + containedInStorey.getClass().getName();
 									}
 								Meldung += "\n W�nde\n Anzahl: " + "		" + numberofWalls + "\n Gesamtvolumen: " + "	" + Math.round(volumeofWalls*100)/100.0 + "m^3 \n  Material: " + "		" + wallMaterial ; 
+								
+								Meldung += "\n \n Fenster \n Material und Anzahl: ";
+								for (int i=0; i< windowMaterial.size()/2; i++) {
+									int j = 2*i;
+									Meldung += "\n" + windowMaterial.get(j) + "		" + windowMaterial.get(j+1).length();
+								}
+								
+								Meldung += "\n \n T�ren \n Material und Anzahl: ";
+								for (int i=0; i< doorMaterial.size()/2; i++) {
+									int j = 2*i;
+									Meldung += "\n" + doorMaterial.get(j) + "		" + doorMaterial.get(j+1).length();
+								}
+								
+								
 								Meldung += "\n \n Platten: \n Material und Anzahl: ";
 								for (int i=0; i< slabMaterial.size()/2; i++) {
 									int j = 2*i;
