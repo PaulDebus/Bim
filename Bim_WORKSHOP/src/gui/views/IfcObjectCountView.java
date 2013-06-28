@@ -5,6 +5,7 @@ import ifc2x3javatoolbox.ifc2x3tc1.ClassInterface;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcAnnotation;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcBuilding;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcBuildingStorey;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcColumn;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcDoor;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcDoorStyle;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcElementQuantity;
@@ -69,11 +70,13 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 	private void updateView() {
 		Integer numberofWalls = 0;
 		Double volumeofWalls = 0.0;
+		Double volumeofSlabs = 0.0;
 		String wallMaterial = new String();
 		String Meldung = new String();
 		ArrayList<String> slabMaterial = new ArrayList<>();
 		ArrayList<String> windowMaterial = new ArrayList<>();
 		ArrayList<String> doorMaterial = new ArrayList<>();
+		ArrayList<String> columnMaterial = new ArrayList<>();
 		String windowMeldung = new String();
 		try {
 			if (ifcModel.getCollection(IfcWindow.class) != null) {
@@ -116,7 +119,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 							Collections.sort(listedStoreys, storeyCompare);
 							for (IfcObjectDefinition storey : listedStoreys)
 							{
-								Meldung += "\n \n \n Geschoss: " + storey.getName() + "\n \n \n";
+								Meldung += "\n \n \n Geschoss: " + storey.getName();
 								// Speichern aller Unterwerte des aktuellen Stockwerkes in Set containedInStoreyList
 								SET<IfcProduct> containedInStoreyList = ((IfcSpatialStructureElement) storey).getContainsElements_Inverse().iterator().next().getRelatedElements();
 								
@@ -125,6 +128,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 								numberofWalls = 0;
 								volumeofWalls = 0.0;
 								slabMaterial.clear();
+								volumeofSlabs = 0.0;
 								
 								//Schleife Ã¼ber das Set containedInStorey, Initialisierung der einzelnen Elemente als Variable containedInStoreyList
 								for (IfcProduct containedInStorey : containedInStoreyList)
@@ -198,6 +202,12 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 												//Meldung += "\n Material des Fensters: " + ifcWindowStyle.getConstructionType().value;
 										
 												
+												
+												//Die nächsten Zeilen ordnen den verschiedenen Arten von Fenstern die Anzahl
+												//ihres Auftretens zu und bereiten so die Ausgabe vor. In die gerade Felder
+												//der Liste windowMaterial werden die Bauweisen in der Schleife geschrieben
+												// und in das darauf folgende Feld wird eine 1 für jedes Auftreten geschrieben
+												//für die Ausgabe wird dann die länge der ungeraden Felder als Anzahl ausgegeben
 												String material = ifcWindowStyle.getConstructionType().value.toString();
 										boolean enthalten = false; 
 										for (int i= 0; i<  windowMaterial.size()/2; i++) {
@@ -231,7 +241,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 									IfcStairTypeEnum type = stair.getShapeType();
 									
 									
-									Meldung += "\n Treppe Material: " + material.getName() + "Typ: " + type.value;
+									Meldung += "\n \n Treppe \n Material: " + material.getName() + "\n Typ: " + type.value;
 									}
 									
 										
@@ -250,7 +260,11 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 														IfcDoorStyle ifcDoorStyle = (IfcDoorStyle)definesByType.getRelatingType();
 														//Meldung += "\n Material der TÃ¼r: " + ifcDoorStyle.getConstructionType().value;
 												
-														
+														//Die nächsten Zeilen ordnen den verschiedenen Arten von Türen die Anzahl
+														//ihres Auftretens zu und bereiten so die Ausgabe vor. In die gerade Felder
+														//der Liste doorMaterial werden die Bauweisen in der Schleife geschrieben
+														// und in das darauf folgende Feld wird eine 1 für jedes Auftreten geschrieben
+														//für die Ausgabe wird dann die länge der ungeraden Felder als Anzahl ausgegeben
 														String material = ifcDoorStyle.getConstructionType().value.toString();
 												boolean enthalten = false; 
 												for (int i= 0; i<  doorMaterial.size()/2; i++) {
@@ -274,6 +288,49 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 										{
 											continue;
 										}
+									
+										else if (containedInStorey instanceof IfcColumn)
+										{
+											// Casten in IfcColumn
+											IfcColumn column = (IfcColumn) containedInStorey;
+											// Abfragen des Materials: da es sich um eine Deckenplatte handelt, wird IfcMaterialLayerSetUsage verwendet
+											// Speichern und Casten von IfcRelAssociatesMaterial, IfcMaterialLayerSetUsage, IfcMaterial
+											IfcRelAssociatesMaterial materialAsso = (IfcRelAssociatesMaterial) column.getHasAssociations_Inverse().iterator().next();
+											
+											IfcMaterial material = null;
+											
+											if (materialAsso.getRelatingMaterial() instanceof IfcMaterial)
+											{
+												material = (IfcMaterial) materialAsso.getRelatingMaterial();	
+											}
+											
+											if (materialAsso.getRelatingMaterial() instanceof IfcMaterialLayerSetUsage)
+											{
+												IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();	
+												material = materialSelect.getForLayerSet().getMaterialLayers().iterator().next().getMaterial();
+											}
+											
+											
+											//Die nächsten Zeilen ordnen den verschiedenen Arten von Stützen die Anzahl
+											//ihres Auftretens zu und bereiten so die Ausgabe vor. In die gerade Felder
+											//der Liste columnMaterial werden die Bauweisen in der Schleife geschrieben
+											// und in das darauf folgende Feld wird eine 1 für jedes Auftreten geschrieben
+											//für die Ausgabe wird dann die länge der ungeraden Felder als Anzahl ausgegeben
+											boolean enthalten = false; 
+											for (int i= 0; i<  columnMaterial.size()/2; i++) {
+												int j = 2*i;
+												if (columnMaterial.get(j) == material.getName().toString()){
+													columnMaterial.set(j+1, columnMaterial.get(j+1)+1);
+													enthalten = true;
+													break;
+												}
+											}
+											if (!enthalten) {
+												columnMaterial.add(material.getName().toString());
+												columnMaterial.add("1");
+											}
+												
+										}
 										else if (containedInStorey instanceof IfcSlab)
 										{
 											
@@ -295,6 +352,43 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 										IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();	
 										material = materialSelect.getForLayerSet().getMaterialLayers().iterator().next().getMaterial();
 									}
+									// Speichern aller Definitionen der aktuellen Wand in das Set relDefinesList
+									SET<IfcRelDefines> relDefinesList = slab.getIsDefinedBy_Inverse();
+									//Schleife Ã¼ber das Set relDefinesList, Initialisierung der einzelnen Elemente als Variable relDefinesIt
+									for (IfcRelDefines relDefinesIt : relDefinesList)
+									{
+										// Bedingung: nur Elemente, die als IfcRelDefinesByProperties instanziiert sind, werden weiterverwendet
+										if (relDefinesIt instanceof IfcRelDefinesByProperties)
+										{
+											// Casten zu IfcRelDefinesByProperties
+											IfcRelDefinesByProperties relDefines = (IfcRelDefinesByProperties) relDefinesIt;
+											
+											// Bedingung: nur Elemente, die IfcElementQuantity enthalten, werden weiterverwendet
+											if (relDefines.getRelatingPropertyDefinition() instanceof IfcElementQuantity )
+											{
+												// Casten zu IfcElementQuantity
+												IfcElementQuantity elementQuantity = (IfcElementQuantity) relDefines.getRelatingPropertyDefinition();
+												// Speichern aller IfcPhysicalQuantities der aktuellen Wand in das Set physQuantity
+												SET<IfcPhysicalQuantity> physQuantity = elementQuantity.getQuantities();
+												
+												//Schleife Ã¼ber das Set physQuantity, Initialisierung der einzelnen Elemente als Variable volume
+												for (IfcPhysicalQuantity volume : physQuantity)
+													// Auswahl der Werte, die ein Volumen speichern
+													if(volume instanceof IfcQuantityVolume)
+													{
+														// Casten zu IfcQuantityVolume
+														IfcQuantityVolume volumeValue = (IfcQuantityVolume) volume;
+														//Meldung += "\n" + volume.getName() + ": " + volumeValue.getVolumeValue();
+														volumeofSlabs += volumeValue.getVolumeValue().value;
+													}	
+											}
+										}}
+												
+									//Die nächsten Zeilen ordnen den verschiedenen Arten von Platten die Anzahl
+									//ihres Auftretens zu und bereiten so die Ausgabe vor. In die gerade Felder
+									//der Liste slabMaterial werden die Bauweisen in der Schleife geschrieben
+									// und in das darauf folgende Feld wird eine 1 für jedes Auftreten geschrieben
+									//für die Ausgabe wird dann die länge der ungeraden Felder als Anzahl ausgegeben
 									boolean enthalten = false; 
 									for (int i= 0; i<  slabMaterial.size()/2; i++) {
 										int j = 2*i;
@@ -309,29 +403,40 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 										slabMaterial.add("1");
 									}
 										}
-										else Meldung += "\n nicht in switchnicht in switchnicht in switchnicht in switchnicht in switchnicht in switch" + containedInStorey.getClass().getName();
 									}
-								Meldung += "\n Wände\n Anzahl: " + "		" + numberofWalls + "\n Gesamtvolumen: " + "	" + Math.round(volumeofWalls*100)/100.0 + "m^3 \n  Material: " + "		" + wallMaterial ; 
 								
-								Meldung += "\n \n Fenster \n Material und Anzahl: ";
+								//Hier werden die einzelnen Bauteillisten ausgegeben. Bei den Wänden die Anzahl und das Volumen. Bei
+								//Fenstern, Türen und Platten wird die oben erstelle Liste ausgewertet. Jeweils zwei aufeinander 
+								//folgende Felder enthalten einen Datensatz aus Name und Anzahl der Elemente, die in diesen Schleifen
+								//untereinander geschrieben werden. 
+								Meldung += "\n \n Wände\n Anzahl: " + "		" + numberofWalls + "\n Gesamtvolumen: " + "	" + Math.round(volumeofWalls*100)/100.0 + "m^3 \n  Material: " + "		" + wallMaterial ; 
+								
+								Meldung += "\n \n Fenster \n Material 		Anzahl: ";
 								for (int i=0; i< windowMaterial.size()/2; i++) {
 									int j = 2*i;
 									Meldung += "\n" + windowMaterial.get(j) + "		" + windowMaterial.get(j+1).length();
 								}
 								
-								Meldung += "\n \n Türen \n Material und Anzahl: ";
+								Meldung += "\n \n Türen \n Material 		Anzahl: ";
 								for (int i=0; i< doorMaterial.size()/2; i++) {
 									int j = 2*i;
 									Meldung += "\n" + doorMaterial.get(j) + "		" + doorMaterial.get(j+1).length();
 								}
 								
 								
-								Meldung += "\n \n Platten: \n Material und Anzahl: ";
+								Meldung += "\n \n Platten: \n Material 		 Anzahl: ";
 								for (int i=0; i< slabMaterial.size()/2; i++) {
 									int j = 2*i;
 									Meldung += "\n" + slabMaterial.get(j) + "		" + slabMaterial.get(j+1).length();
 								}
-							}
+								Meldung += "\n Gesamtvolumen der Platten: " + Math.round(volumeofSlabs*100)/100.0 + "m^3";
+								if (columnMaterial.size() != 0){
+								Meldung += "\n \n Stützen: \n Material 		 Anzahl: ";
+								for (int i=0; i< columnMaterial.size()/2; i++) {
+									int j = 2*i;
+									Meldung += "\n" + columnMaterial.get(j) + "		" + columnMaterial.get(j+1).length();
+								}
+							}}
 						}
 									
 									
