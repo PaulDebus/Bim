@@ -25,6 +25,7 @@ import ifc2x3javatoolbox.ifc2x3tc1.IfcMaterialSelect;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcObject;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcObjectDefinition;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcPhysicalQuantity;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcPositiveLengthMeasure;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcProduct;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcProject;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcProperty;
@@ -41,6 +42,7 @@ import ifc2x3javatoolbox.ifc2x3tc1.IfcSlab;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcSpace;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcSpatialStructureElement;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcStair;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcStairTypeEnum;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcTypeObject;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcVolumeMeasure;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcWall;
@@ -227,7 +229,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 //									{
 //										IfcStair stair = (IfcStair) containedInStorey;
 //										
-//										Iterator<IfcRelDefines> iterator = stair.getIsDefinedBy_Inverse().iterator();
+//										Iterator<IfcRelAssociatesMaterial> iterator = stair.getHasAssociations_Inverse()
 //										while(iterator.hasNext())
 //										{
 //											IfcRelDefines ifcRelDefines = iterator.next();
@@ -239,22 +241,81 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 //											}
 //										}
 //									}
+//									
+									else if (containedInStorey instanceof IfcStair)
+									{
+										IfcStair stair = (IfcStair) containedInStorey;									
+									
+									
+									IfcRelAssociatesMaterial materialAsso = (IfcRelAssociatesMaterial) stair.getHasAssociations_Inverse().iterator().next();
+	
+									IfcMaterial material = (IfcMaterial) materialAsso.getRelatingMaterial();
+									
+									IfcStairTypeEnum type = stair.getShapeType();
+									
+									
+									Meldung += "\n Treppe Material: " + material.getName() + "Typ: " + type.value;
+									}
+									
+//									// Speichern aller Definitionen der aktuellen Wand in das Set relDefinesList
+//									SET<IfcRelDefines> relDefinesList = wall.getIsDefinedBy_Inverse();
+//									//Schleife über das Set relDefinesList, Initialisierung der einzelnen Elemente als Variable relDefinesIt
+//									for (IfcRelDefines relDefinesIt : relDefinesList)
+//									{
+//										// Bedingung: nur Elemente, die als IfcRelDefinesByProperties instanziiert sind, werden weiterverwendet
+//										if (relDefinesIt instanceof IfcRelDefinesByProperties)
+//										{
+//											// Casten zu IfcRelDefinesByProperties
+//											IfcRelDefinesByProperties relDefines = (IfcRelDefinesByProperties) relDefinesIt;
+//											
+//											// Bedingung: nur Elemente, die IfcElementQuantity enthalten, werden weiterverwendet
+//											if (relDefines.getRelatingPropertyDefinition() instanceof IfcElementQuantity )
+//											{
+//												// Casten zu IfcElementQuantity
+//												IfcElementQuantity elementQuantity = (IfcElementQuantity) relDefines.getRelatingPropertyDefinition();
+//												// Speichern aller IfcPhysicalQuantities der aktuellen Wand in das Set physQuantity
+//												SET<IfcPhysicalQuantity> physQuantity = elementQuantity.getQuantities();
+//												
+//												//Schleife über das Set physQuantity, Initialisierung der einzelnen Elemente als Variable volume
+//												for (IfcPhysicalQuantity volume : physQuantity)
+//													// Auswahl der Werte, die ein Volumen speichern
+//													if(volume instanceof IfcQuantityVolume)
+//													{
+//														// Casten zu IfcQuantityVolume
+//														IfcQuantityVolume volumeValue = (IfcQuantityVolume) volume;
+//														Meldung += "\n" + volume.getName() + ": " + volumeValue.getVolumeValue();
+//													}
+//												}
+//											}
+//										}
+//									}
+//									
 									
 									else if (containedInStorey instanceof IfcWindow)
 									{
 										IfcWindow window = (IfcWindow) containedInStorey;
 										
+										IfcPositiveLengthMeasure width = window.getOverallHeight();
+										IfcPositiveLengthMeasure hight = window.getOverallHeight();
+										Meldung += "\n \n hä \n \n";
+										Meldung += "\n Höhe: " + hight.toString() + "Breite: " + width.value;
+										
+										
 										Iterator<IfcRelDefines> iterator = window.getIsDefinedBy_Inverse().iterator();
 										while(iterator.hasNext())
 										{
+											Meldung  += "\n \n hä2 \n \n";
 											IfcRelDefines ifcRelDefines = iterator.next();
 											if(ifcRelDefines instanceof IfcRelDefinesByType)
 											{
+												Meldung  += "\n \n hä⁵ \n \n";
 												IfcRelDefinesByType definesByType = (IfcRelDefinesByType)ifcRelDefines;
 												IfcWindowStyle ifcWindowStyle = (IfcWindowStyle)definesByType.getRelatingType();
-												Meldung += "\n Material des Fensters: " + ifcWindowStyle.getConstructionType().value;
+												Meldung += "blabla Material des Fensters: " + ifcWindowStyle.getConstructionType().value;
 											}
+											
 										}
+										
 									}
 												
 										else if (containedInStorey instanceof IfcDoor)

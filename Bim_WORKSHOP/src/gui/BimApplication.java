@@ -101,15 +101,10 @@ public class BimApplication extends JFrame {
 		this.add(splitPane, BorderLayout.CENTER); // ins mittlere layout
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		leftPanel = new JPanel(); // linkes panel deklariert
-		//leftPanel.setBackground(Color.white); // Hintergrundfarbe
-		//rightPanel = new JPanel();
 		splitPane.add(tabbedPane); // tabbedpane hinzuf�gen
-		//splitPane.add(rightPanel);
-
-		//tabbedPane.add(leftPanel, "Tab 1"); // leftpanel mit titel Tab1
 		tabbedPane.add(ifcObjectCountView = new IfcObjectCountView(ifcModel),
 				"Fenster Count", 0);
-		// 0 ist Position
+
 		JScrollPane scrollpane = new JScrollPane(ifcObjectCountView);
 		add(scrollpane);
 	}
