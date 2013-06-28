@@ -1,37 +1,21 @@
 package gui.views;
 
 // Einbindung aller benötigten Klassen
-import java.awt.BorderLayout;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Set;
-
 import ifc2x3javatoolbox.ifc2x3tc1.ClassInterface;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcAnnotation;
-import ifc2x3javatoolbox.ifc2x3tc1.IfcAxis1Placement;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcBuilding;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcBuildingStorey;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcDoor;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcDoorStyle;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcElementQuantity;
-import ifc2x3javatoolbox.ifc2x3tc1.IfcLabel;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcMaterial;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcMaterialLayerSetUsage;
-import ifc2x3javatoolbox.ifc2x3tc1.IfcMaterialSelect;
-import ifc2x3javatoolbox.ifc2x3tc1.IfcObject;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcObjectDefinition;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcPhysicalQuantity;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcPositiveLengthMeasure;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcProduct;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcProject;
-import ifc2x3javatoolbox.ifc2x3tc1.IfcProperty;
-import ifc2x3javatoolbox.ifc2x3tc1.IfcPropertySetDefinition;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcQuantityVolume;
-import ifc2x3javatoolbox.ifc2x3tc1.IfcRelAssociates;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcRelAssociatesMaterial;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcRelDecomposes;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcRelDefines;
@@ -39,13 +23,10 @@ import ifc2x3javatoolbox.ifc2x3tc1.IfcRelDefinesByProperties;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcRelDefinesByType;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcSite;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcSlab;
-import ifc2x3javatoolbox.ifc2x3tc1.IfcSpace;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcSpatialStructureElement;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcStair;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcStairTypeEnum;
-import ifc2x3javatoolbox.ifc2x3tc1.IfcTypeObject;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcVolumeMeasure;
-import ifc2x3javatoolbox.ifc2x3tc1.IfcWall;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcWallStandardCase;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcWindow;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcWindowStyle;
@@ -53,14 +34,16 @@ import ifc2x3javatoolbox.ifc2x3tc1.SET;
 import ifc2x3javatoolbox.ifcmodel.IfcModel;
 import ifc2x3javatoolbox.ifcmodel.IfcModelListener;
 
-import javax.swing.JPanel;
-import javax.swing.JTable;
-import javax.swing.JTextArea;
-import javax.swing.table.AbstractTableModel;
-import javax.swing.table.TableModel;
+import java.awt.BorderLayout;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.Iterator;
+import java.util.List;
 
-import MVC.Fenster;
-import gui.views.StoreySort;
+import javax.swing.JPanel;
+import javax.swing.JTextArea;
 
 // Klasse IfcObjectCountView, Unterklasse von JPanel, implementiert IfcModelListener
 public class IfcObjectCountView extends JPanel implements IfcModelListener {
@@ -69,7 +52,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 	private IfcModel ifcModel = null;
 	private JTextArea objectCountTextArea = null;
 	
-	// Konstruktor
+	// Konstruktor: Erzeugt Objekt und belegt Attribute 
 	public IfcObjectCountView(IfcModel ifcModel) {
 
 		this.ifcModel = ifcModel;
@@ -84,10 +67,12 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 	}
 
 	private void updateView() {
-
+		Integer numberofWalls = 0;
+		Double volumeofWalls = 0.0;
+		String wallMaterial = new String();
+		String Meldung = new String();
 		try {
 			if (ifcModel.getCollection(IfcWindow.class) != null) {
-				String Meldung = new String();
 				
 
 					// Initialisieren des Projektes aus dem Model
@@ -132,9 +117,9 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 								SET<IfcProduct> containedInStoreyList = ((IfcSpatialStructureElement) storey).getContainsElements_Inverse().iterator().next().getRelatedElements();
 								
 								// Instanziieren von Sets für die einzelnen Bauteile
-								SET<IfcWallStandardCase> wallList = null;
-								SET<IfcWindow> windowList = null;
-								SET<IfcDoor> doorList = null;
+								
+								numberofWalls = 0;
+								volumeofWalls = 0.0;
 								
 								//Schleife über das Set containedInStorey, Initialisierung der einzelnen Elemente als Variable containedInStoreyList
 								for (IfcProduct containedInStorey : containedInStoreyList)
@@ -146,12 +131,13 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 										{
 												// Casten in IfcWallStandardCase 
 												IfcWallStandardCase wall = (IfcWallStandardCase) containedInStorey;
+												numberofWalls++;
 												// Abfragen des Materials: da es sich um eine Wand handelt, wird IfcMaterialLayerSetUsage verwendet
 												// Speichern und Casten von IfcRelAssociatesMaterial, IfcMaterialLayerSetUsage, IfcMaterial
 												IfcRelAssociatesMaterial materialAsso = (IfcRelAssociatesMaterial) wall.getHasAssociations_Inverse().iterator().next();
 												IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();
 												IfcMaterial material = materialSelect.getForLayerSet().getMaterialLayers().iterator().next().getMaterial();
-												Meldung += "\n Material: " + material.getName();
+												//Meldung += "\n Material: " + material.getName();
 												
 												// Speichern aller Definitionen der aktuellen Wand in das Set relDefinesList
 												SET<IfcRelDefines> relDefinesList = wall.getIsDefinedBy_Inverse();
@@ -179,7 +165,8 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 																{
 																	// Casten zu IfcQuantityVolume
 																	IfcQuantityVolume volumeValue = (IfcQuantityVolume) volume;
-																	Meldung += "\n" + volume.getName() + ": " + volumeValue.getVolumeValue();
+																	//Meldung += "\n" + volume.getName() + ": " + volumeValue.getVolumeValue();
+																	volumeofWalls += volumeValue.getVolumeValue().value;
 																}
 															}
 														}
@@ -193,7 +180,6 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 										
 										IfcPositiveLengthMeasure width = window.getOverallHeight();
 										IfcPositiveLengthMeasure height = window.getOverallHeight();
-										Meldung += "\n Höhe: " + height.toString() + "Breite: " + width.value;
 										
 										Iterator<IfcRelDefines> iterator = window.getIsDefinedBy_Inverse().iterator();
 										while(iterator.hasNext())
@@ -203,9 +189,10 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 											{
 												IfcRelDefinesByType definesByType = (IfcRelDefinesByType)ifcRelDefines;
 												IfcWindowStyle ifcWindowStyle = (IfcWindowStyle)definesByType.getRelatingType();
-												Meldung += "\n Material des Fensters: " + ifcWindowStyle.getConstructionType().value;
+												Meldung += "\n Material des Fensters: " + ifcWindowStyle.getConstructionType().value.toString();
 											}
 										}
+										Meldung += ", Höhe: " + height.toString() + "m Breite: " + width.value + "m";
 										
 									}
 
@@ -268,22 +255,24 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 										IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();	
 										material = materialSelect.getForLayerSet().getMaterialLayers().iterator().next().getMaterial();
 									}
-									Meldung += "\n DeckenplatteDeckenplatte" + slab.getName() + material.getName();
+									Meldung += "\n Platte" + slab.getName() + material.getName();
 										}
 										else Meldung += "\n nicht in switchnicht in switchnicht in switchnicht in switchnicht in switchnicht in switch" + containedInStorey.getClass().getName();
 									}
+								Meldung += "\n \n \n Anzahl der W�nde in diesem Geschoss: " + numberofWalls + ", Gesamtvolumen: " + Math.round(volumeofWalls*100)/100.0 + "m^3, Material der W�nde: " + wallMaterial ; 
 							}
 						}
 									
 									
 								}
 
-				objectCountTextArea.setText(Meldung);
-			objectCountTextArea.repaint();
 		}} 
 			catch (Exception e) {
+				Meldung = "Bitte eine ifc-Datei einlesen.";
 			//e.printStackTrace();
 		}
+		objectCountTextArea.setText(Meldung);
+		objectCountTextArea.repaint();
 	}
 
 	@Override
