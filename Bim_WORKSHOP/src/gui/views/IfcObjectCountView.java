@@ -52,7 +52,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 	private IfcModel ifcModel = null;
 	private JTextArea objectCountTextArea = null;
 	
-	// Konstruktor: Erzeugt Objekt und belegt Attribute 
+	// Konstruktor
 	public IfcObjectCountView(IfcModel ifcModel) {
 
 		this.ifcModel = ifcModel;
