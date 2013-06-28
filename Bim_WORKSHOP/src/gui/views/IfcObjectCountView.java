@@ -88,13 +88,8 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 		try {
 			if (ifcModel.getCollection(IfcWindow.class) != null) {
 				String Meldung = new String();
+				
 
-				try {
-					
-					
-					
-					
-					
 					// Initialisieren des Projektes aus dem Model
 					IfcProject ifcProject = ifcModel.getIfcProject();
 					// Speichern aller Unterwerte von ifcProject in Set siteList
@@ -123,6 +118,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 							//Schleife über das Set storeyList, Initialisierung der einzelnen Elemente als Variable storeyDefinition
 							for (IfcObjectDefinition storeyDefinition : storeyList)
 							{
+								
 								// Casten von IfcObjectDefinition zu IfcBuildingStorey, speichern des aktuellen Stockwerkes
 								listedStoreys.add((IfcBuildingStorey) storeyDefinition);
 							}
@@ -211,7 +207,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 											}
 										}
 										
-											}
+									}
 
 									else if (containedInStorey instanceof IfcStair)
 									{
@@ -281,50 +277,34 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 									
 									
 								}
-								
-				} catch (Exception e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				}
 
 				objectCountTextArea.setText(Meldung);
 			objectCountTextArea.repaint();
 		}} 
 			catch (Exception e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
+			//e.printStackTrace();
 		}
 	}
 
 	@Override
 	public void modelContentChanged() {
-		// TODO Auto-generated method stub
 		updateView();
-		
 	}
 
 	@Override
 	public void modelObjectAdded(ClassInterface object) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void modelObjectRemoved(ClassInterface object) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void modelObjectsAdded(Collection<ClassInterface> objects) {
-		// TODO Auto-generated method stub
-		
 	}
 
 	@Override
 	public void modelObjectsRemoved(Collection<ClassInterface> objects) {
-		// TODO Auto-generated method stub
-		
 	}
 
 }
