@@ -9,6 +9,7 @@ import ifc2x3javatoolbox.ifc2x3tc1.IfcDoor;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcDoorStyle;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcElementQuantity;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcMaterial;
+import ifc2x3javatoolbox.ifc2x3tc1.IfcMaterialLayer;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcMaterialLayerSetUsage;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcObjectDefinition;
 import ifc2x3javatoolbox.ifc2x3tc1.IfcPhysicalQuantity;
@@ -52,7 +53,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 	private IfcModel ifcModel = null;
 	private JTextArea objectCountTextArea = null;
 	
-	// Konstruktor
+	// Konstruktor: Erzeugt Objekte und belegt Attribute 
 	public IfcObjectCountView(IfcModel ifcModel) {
 
 		this.ifcModel = ifcModel;
@@ -66,121 +67,118 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 		updateView();
 	}
 
+	// Funktion zu Ermittlung der einzelnen Bautele des Ifc-Projektes
 	private void updateView() {
 		Integer numberofWalls = 0;
 		Double volumeofWalls = 0.0;
 		String wallMaterial = new String();
 		String Meldung = new String();
+		// try / catch: wenn ein Objekt eingeladen wurde, wird die Analyse durchgeführt, wenn nicht, wird ein Hinweis ausgegeben
 		try {
 			if (ifcModel.getCollection(IfcWindow.class) != null) {
 				
-
-					// Initialisieren des Projektes aus dem Model
+					// Das Projekt wird aus dem Modell ausgelesen und einer Variable zugewiesen.
+					// Danach werden die im Projekt vorhandenen Gelände in einem Set zwischengespeichert. 
 					IfcProject ifcProject = ifcModel.getIfcProject();
-					// Speichern aller Unterwerte von ifcProject in Set siteList
+					
+					// Für jedes vorhandene Gelände werden alls vorhandenen Gebäude in einem Set gespeichert.
+					// Die Variablen werden dazu zum Datentyp IfcSite gecastet.
 					SET<IfcRelDecomposes> siteList = ifcProject.getIsDecomposedBy_Inverse();
-					//Schleife über das Set siteList, Initialisierung der einzelnen Elemente als Variable siteIt
 					for (IfcRelDecomposes siteIt : siteList)
 					{
-						// Casten von IfcRelDecomposes zu IfcSite, Auslesen der Gelände innerhalb des Projektes, 
-						// Speichern in Variable site
 						IfcSite site = (IfcSite) siteIt.getRelatedObjects().iterator().next();
 						Meldung += site.getName();
 						
-						// Speichern aller Unterwerte des aktuellen Geländes in ein Set
+						// Analog werden für jedes Gelände die Gebäude gespeichert und zu IfcBuilding gecastet. 
 						SET<IfcRelDecomposes> buildingList = site.getIsDecomposedBy_Inverse();
-						//Schleife über das Set buildingList, Initialisierung der einzelnen Elemente als Variable buildingIt
 						for (IfcRelDecomposes buildingIt : buildingList)
 						{
-							// Casten, Auslesen der Gebäude auf dem Gelände, Speichern in Variable building
 							IfcBuilding building = (IfcBuilding) buildingIt.getRelatedObjects().iterator().next();
 							Meldung += "\n Gebäude: " + building.getName();
-							
-							// Speichern aller Unterwerte des aktuellen Gebäudes in ein Set
 							// get related objects?
+							
+							// Analog werden für jedes Gebäude die Geschosse gespeichert, IfcBuildingStorey gecastet und zur Sortierung in eine Liste geschrieben.
+							// Die Geschosse der Liste werden mittels des Comparators StoreySort nach ihrer Höhe sortiert. 
+							// Dazu übergibt Collections.sort jeweils zwei Geschosse an StoreySort und sortiert sie entsprechend der Rückgabewerte.
 							SET<IfcObjectDefinition> storeyList = building.getIsDecomposedBy_Inverse().iterator().next().getRelatedObjects();
 							List<IfcBuildingStorey> listedStoreys = new ArrayList<>();
-							//Schleife über das Set storeyList, Initialisierung der einzelnen Elemente als Variable storeyDefinition
 							for (IfcObjectDefinition storeyDefinition : storeyList)
 							{
-								
-								// Casten von IfcObjectDefinition zu IfcBuildingStorey, speichern des aktuellen Stockwerkes
 								listedStoreys.add((IfcBuildingStorey) storeyDefinition);
 							}
-
 							Comparator<IfcBuildingStorey> storeyCompare = new StoreySort();
 							Collections.sort(listedStoreys, storeyCompare);
+
+							// Alle Elemente, die im aktuellen Geschoss enthalten sind, werden in einem Set gespeichert.
+							// Für jedes Element wird unterschieden, welcher Klasse es ist.
+							// Entsprechend des Typs werden verschiedene weitere Analysen durchgeführt.
 							for (IfcObjectDefinition storey : listedStoreys)
 							{
 								Meldung += "\n \n \n Geschoss: " + storey.getName() + "\n \n \n";
-								// Speichern aller Unterwerte des aktuellen Stockwerkes in Set containedInStoreyList
-								SET<IfcProduct> containedInStoreyList = ((IfcSpatialStructureElement) storey).getContainsElements_Inverse().iterator().next().getRelatedElements();
-								
-								// Instanziieren von Sets für die einzelnen Bauteile
-								
 								numberofWalls = 0;
 								volumeofWalls = 0.0;
 								
-								//Schleife über das Set containedInStorey, Initialisierung der einzelnen Elemente als Variable containedInStoreyList
+								SET<IfcProduct> containedInStoreyList = ((IfcSpatialStructureElement) storey).getContainsElements_Inverse().iterator().next().getRelatedElements();
 								for (IfcProduct containedInStorey : containedInStoreyList)
 								{
-									// Unterscheidung der einzelnen Bauteile über den Namen ihrer Klasse mittels eines switch
+									// Elemente der Klasse IfcWallStandardCase
 									if (containedInStorey instanceof IfcWallStandardCase)
 									{
-										// falls es sich um eine Wand handelt
-										{
-												// Casten in IfcWallStandardCase 
+												// Cast 
 												IfcWallStandardCase wall = (IfcWallStandardCase) containedInStorey;
 												numberofWalls++;
-												// Abfragen des Materials: da es sich um eine Wand handelt, wird IfcMaterialLayerSetUsage verwendet
-												// Speichern und Casten von IfcRelAssociatesMaterial, IfcMaterialLayerSetUsage, IfcMaterial
+												
+												// Materialbestimmung: Da es sich um eine Wand handelt, wird IfcMaterialLayerSetUsage verwendet.
+												// Diese Klasse speichert Materialien für Elemente aus mehreren Schichten. 
+												// Für jede Schicht wird das Material ausgelesen und einem gemeinsamen String hinzugefügt.
 												IfcRelAssociatesMaterial materialAsso = (IfcRelAssociatesMaterial) wall.getHasAssociations_Inverse().iterator().next();
 												IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();
-												IfcMaterial material = materialSelect.getForLayerSet().getMaterialLayers().iterator().next().getMaterial();
-												//Meldung += "\n Material: " + material.getName();
+												IfcMaterial materialit = null;
+												String material = null;
 												
-												// Speichern aller Definitionen der aktuellen Wand in das Set relDefinesList
+												for (IfcMaterialLayer materialLayer: materialSelect.getForLayerSet().getMaterialLayers())
+												{
+													materialit = materialLayer.getMaterial();
+													material += materialit + " ";
+												}
+												
+												// Volumenbestimmung: Alle Definitionen der aktuellen Wand werden gespeichert.
+												// Nur Elemente der Klasse IfcRelDefinesByProperties, die IfcElementQuantity enthalten, werden betrachtet.
+												// Nach einem Cast zu IfcElementQuantity werden die IfcPhysicalQuantities gespeichert.
+												// Das Element, das IfcQuantityVolume, wird ausgewählt und der Wert gespeichert.
 												SET<IfcRelDefines> relDefinesList = wall.getIsDefinedBy_Inverse();
-												//Schleife über das Set relDefinesList, Initialisierung der einzelnen Elemente als Variable relDefinesIt
 												for (IfcRelDefines relDefinesIt : relDefinesList)
 												{
-													// Bedingung: nur Elemente, die als IfcRelDefinesByProperties instanziiert sind, werden weiterverwendet
 													if (relDefinesIt instanceof IfcRelDefinesByProperties)
 													{
-														// Casten zu IfcRelDefinesByProperties
 														IfcRelDefinesByProperties relDefines = (IfcRelDefinesByProperties) relDefinesIt;
-														
-														// Bedingung: nur Elemente, die IfcElementQuantity enthalten, werden weiterverwendet
 														if (relDefines.getRelatingPropertyDefinition() instanceof IfcElementQuantity )
 														{
-															// Casten zu IfcElementQuantity
 															IfcElementQuantity elementQuantity = (IfcElementQuantity) relDefines.getRelatingPropertyDefinition();
-															// Speichern aller IfcPhysicalQuantities der aktuellen Wand in das Set physQuantity
 															SET<IfcPhysicalQuantity> physQuantity = elementQuantity.getQuantities();
 															
-															//Schleife über das Set physQuantity, Initialisierung der einzelnen Elemente als Variable volume
 															for (IfcPhysicalQuantity volume : physQuantity)
-																// Auswahl der Werte, die ein Volumen speichern
 																if(volume instanceof IfcQuantityVolume)
 																{
-																	// Casten zu IfcQuantityVolume
 																	IfcQuantityVolume volumeValue = (IfcQuantityVolume) volume;
-																	//Meldung += "\n" + volume.getName() + ": " + volumeValue.getVolumeValue();
 																	volumeofWalls += volumeValue.getVolumeValue().value;
 																}
 															}
 														}
 													}
-												}
+												
 									}
-											
+									
+									
+									// Elemente der Klasse IfcWindow
 									else if (containedInStorey instanceof IfcWindow)
 									{
 										IfcWindow window = (IfcWindow) containedInStorey;
-										
+										// Bestimmung der Abmaße IfcPositiveLengthMeasure und IfcPositiveLengthMeasure
 										IfcPositiveLengthMeasure width = window.getOverallHeight();
 										IfcPositiveLengthMeasure height = window.getOverallHeight();
 										
+										// Zur Bestimmung des Materials wird das Element IfcWindowStyleConstructionEnum aus den IfcRelDefines und dem IfcWindowStyle gewählt.
 										Iterator<IfcRelDefines> iterator = window.getIsDefinedBy_Inverse().iterator();
 										while(iterator.hasNext())
 										{
@@ -193,71 +191,66 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 											}
 										}
 										Meldung += ", Höhe: " + height.toString() + "m Breite: " + width.value + "m";
-										
 									}
-
+									
+									// Elemente der Klasse IfcStair
 									else if (containedInStorey instanceof IfcStair)
 									{
-										IfcStair stair = (IfcStair) containedInStorey;									
-									
-									
-									IfcRelAssociatesMaterial materialAsso = (IfcRelAssociatesMaterial) stair.getHasAssociations_Inverse().iterator().next();
-	
-									IfcMaterial material = (IfcMaterial) materialAsso.getRelatingMaterial();
-									
-									IfcStairTypeEnum type = stair.getShapeType();
-									
-									
-									Meldung += "\n Treppe Material: " + material.getName() + "Typ: " + type.value;
+										// Cast
+										IfcStair stair = (IfcStair) containedInStorey;
+										// Materialbestimmung: Über die IfcRelAssociatesMaterial wird das IfcMaterial ausgewählt.
+										IfcRelAssociatesMaterial materialAsso = (IfcRelAssociatesMaterial) stair.getHasAssociations_Inverse().iterator().next();
+										IfcMaterial material = (IfcMaterial) materialAsso.getRelatingMaterial();
+										// Die Form der Treppen ist in IfcStairTypeEnum gespeichert.
+										IfcStairTypeEnum type = stair.getShapeType();
+										Meldung += "\n Treppe Material: " + material.getName() + "Typ: " + type.value;
 									}
 									
-										
-									
-												
-										else if (containedInStorey instanceof IfcDoor)
-										{
-												IfcDoor door = (IfcDoor) containedInStorey;
-												Iterator<IfcRelDefines> iterator = door.getIsDefinedBy_Inverse().iterator();
-												while(iterator.hasNext())
+									// Elemente der Klasse IfcDoor
+									// Analog IfcWindow!
+									else if (containedInStorey instanceof IfcDoor)
+									{
+											IfcDoor door = (IfcDoor) containedInStorey;
+											Iterator<IfcRelDefines> iterator = door.getIsDefinedBy_Inverse().iterator();
+											while(iterator.hasNext())
+											{
+												IfcRelDefines ifcRelDefines = iterator.next();
+												if(ifcRelDefines instanceof IfcRelDefinesByType)
 												{
-													IfcRelDefines ifcRelDefines = iterator.next();
-													if(ifcRelDefines instanceof IfcRelDefinesByType)
-													{
-														IfcRelDefinesByType definesByType = (IfcRelDefinesByType)ifcRelDefines;
+													IfcRelDefinesByType definesByType = (IfcRelDefinesByType)ifcRelDefines;
 														IfcDoorStyle ifcDoorStyle = (IfcDoorStyle)definesByType.getRelatingType();
-														Meldung += "\n Material der Tür: " + ifcDoorStyle.getConstructionType().value;
-													}
+														Meldung += "\n Material der Tür: " + ifcDoorStyle.getConstructionType().value;													}
 												}
-										}
-												
-										else if (containedInStorey instanceof IfcAnnotation)
-										{
-											continue;
-										}
-										else if (containedInStorey instanceof IfcSlab)
-										{
-											
-											// Casten in IfcSlab 
-									IfcSlab slab = (IfcSlab) containedInStorey;
-									// Abfragen des Materials: da es sich um eine Deckenplatte handelt, wird IfcMaterialLayerSetUsage verwendet
-									// Speichern und Casten von IfcRelAssociatesMaterial, IfcMaterialLayerSetUsage, IfcMaterial
-									IfcRelAssociatesMaterial materialAsso = (IfcRelAssociatesMaterial) slab.getHasAssociations_Inverse().iterator().next();
-									
-									IfcMaterial material = null;
-									
-									if (materialAsso.getRelatingMaterial() instanceof IfcMaterial)
-									{
-										material = (IfcMaterial) materialAsso.getRelatingMaterial();	
 									}
-									
-									if (materialAsso.getRelatingMaterial() instanceof IfcMaterialLayerSetUsage)
+									// Elemene der Klasse IfcAnnotation werden ignoriert, da Sie keine Bauteile darstellen.
+									else if (containedInStorey instanceof IfcAnnotation)
 									{
-										IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();	
-										material = materialSelect.getForLayerSet().getMaterialLayers().iterator().next().getMaterial();
+										continue;
 									}
-									Meldung += "\n Platte" + slab.getName() + material.getName();
+									// Elemente der Klasse IfcSlab
+									else if (containedInStorey instanceof IfcSlab)
+									{
+										// Casten in IfcSlab 
+										IfcSlab slab = (IfcSlab) containedInStorey;
+										// Abfragen des Materials: da es sich um eine Deckenplatte handelt, wird IfcMaterialLayerSetUsage verwendet
+										// Speichern und Casten von IfcRelAssociatesMaterial, IfcMaterialLayerSetUsage, IfcMaterial
+										IfcRelAssociatesMaterial materialAsso = (IfcRelAssociatesMaterial) slab.getHasAssociations_Inverse().iterator().next();
+									
+										IfcMaterial material = null;
+									
+										if (materialAsso.getRelatingMaterial() instanceof IfcMaterial)
+										{
+											material = (IfcMaterial) materialAsso.getRelatingMaterial();	
 										}
-										else Meldung += "\n nicht in switchnicht in switchnicht in switchnicht in switchnicht in switchnicht in switch" + containedInStorey.getClass().getName();
+									
+										if (materialAsso.getRelatingMaterial() instanceof IfcMaterialLayerSetUsage)
+										{
+											IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();	
+											material = materialSelect.getForLayerSet().getMaterialLayers().iterator().next().getMaterial();
+										}
+										Meldung += "\n Platte" + slab.getName() + material.getName();
+									}
+									else Meldung += "\n nicht in switchnicht in switchnicht in switchnicht in switchnicht in switchnicht in switch" + containedInStorey.getClass().getName();
 									}
 								Meldung += "\n \n \n Anzahl der W�nde in diesem Geschoss: " + numberofWalls + ", Gesamtvolumen: " + Math.round(volumeofWalls*100)/100.0 + "m^3, Material der W�nde: " + wallMaterial ; 
 							}
