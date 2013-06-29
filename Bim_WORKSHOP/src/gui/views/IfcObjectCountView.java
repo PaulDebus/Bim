@@ -232,20 +232,25 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 									{
 										// Casten in IfcSlab 
 										IfcSlab slab = (IfcSlab) containedInStorey;
-										// Abfragen des Materials: da es sich um eine Deckenplatte handelt, wird IfcMaterialLayerSetUsage verwendet
-										// Speichern und Casten von IfcRelAssociatesMaterial, IfcMaterialLayerSetUsage, IfcMaterial
+										// Materialbestimmung: Das Material von IfcSlab wird je nach Bauteil als  IfcMaterialLayerSet oder direkt IfcMaterial gespeichert.
+										// Daher muss eine Unterscheidung getroffen werden, ob das Material analog zu den Wänden oder direkt abgefragt werden kann.
 										IfcRelAssociatesMaterial materialAsso = (IfcRelAssociatesMaterial) slab.getHasAssociations_Inverse().iterator().next();
-									
 										IfcMaterial material = null;
-									
 										if (materialAsso.getRelatingMaterial() instanceof IfcMaterial)
 										{
 											material = (IfcMaterial) materialAsso.getRelatingMaterial();	
 										}
-									
 										if (materialAsso.getRelatingMaterial() instanceof IfcMaterialLayerSetUsage)
 										{
-											IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();	
+											IfcMaterialLayerSetUsage materialSelect = (IfcMaterialLayerSetUsage) materialAsso.getRelatingMaterial();
+											IfcMaterial materialit = null;
+											String materialString = null;
+											for (IfcMaterialLayer materialLayer: materialSelect.getForLayerSet().getMaterialLayers())
+											{
+												materialit = materialLayer.getMaterial();
+												materialString += materialit + " ";
+											}
+											
 											material = materialSelect.getForLayerSet().getMaterialLayers().iterator().next().getMaterial();
 										}
 										Meldung += "\n Platte" + slab.getName() + material.getName();
@@ -264,10 +269,12 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 				Meldung = "Bitte eine ifc-Datei einlesen.";
 			//e.printStackTrace();
 		}
+		// Ausgabe des Textes
 		objectCountTextArea.setText(Meldung);
 		objectCountTextArea.repaint();
 	}
 
+	// Initialisierung aller Klassen des implementierten IfcModelListener
 	@Override
 	public void modelContentChanged() {
 		updateView();
