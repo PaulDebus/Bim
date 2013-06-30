@@ -14,7 +14,6 @@ import javax.swing.JMenuBar;
 import javax.swing.JMenuItem;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import javax.swing.JSplitPane;
 import javax.swing.JTabbedPane;
 
 public class BimApplication extends JFrame {
@@ -28,22 +27,18 @@ public class BimApplication extends JFrame {
 
 	public BimApplication() {
 		ifcModel = new IfcModel();
-
-		this.setSize(1024, 768); // Fenstergr��e
-		this.setTitle("Bim Application"); // Titel
+		// Inititalisieren des Ausgabefensters
+		this.setSize(1024, 768); 
+		this.setTitle("Bim Application"); 
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-		// schlie�en hei�t schlie�en
 		initMenuBar();
-		initComponents(); // initialisiere Knopf
-		this.setVisible(true); // sichtbares Fenster (am besten nach fertiger
-								// Beschreibung!)
+		initComponents();
+		this.setVisible(true); 
 	}
-
+	// Öffnen der Datei
 	private void openFile() {
 		JFileChooser fileChooser = new JFileChooser();
 		if (fileChooser.showOpenDialog(this) == JFileChooser.APPROVE_OPTION)
-			;
-		// THIS! unser fenster (objekt!) | returns approve...
 		{
 			File file = fileChooser.getSelectedFile();
 			this.setTitle(file.getAbsolutePath());
@@ -56,19 +51,19 @@ public class BimApplication extends JFrame {
 		}
 
 	}
-
-	private void initMenuBar() // men� leiste
+	// Erstellen der Menüleiste
+	private void initMenuBar() 
 	{
-		JMenuBar jMenuBar = new JMenuBar(); // leiste
-		JMenu fileMenu = new JMenu("File"); // tab
+		JMenuBar jMenuBar = new JMenuBar();
+		JMenu fileMenu = new JMenu("File"); 
 		jMenuBar.add(fileMenu);
 
-		JMenuItem openMenuItem = new JMenuItem("Open File"); // klapp item
-		openMenuItem.addActionListener(new ActionListener() {
-
-			public void actionPerformed(ActionEvent e) {
+		JMenuItem openMenuItem = new JMenuItem("Open File");
+		openMenuItem.addActionListener(new ActionListener() 
+		{
+			public void actionPerformed(ActionEvent e) 
+			{
 				openFile();
-
 			}
 		});
 		fileMenu.add(openMenuItem);
@@ -87,17 +82,11 @@ public class BimApplication extends JFrame {
 
 		this.setJMenuBar(jMenuBar);
 	}
-
+	
 	private void initComponents() {
-		this.setLayout(new BorderLayout()); // nutze borderlayout als layout
-											// manager
-
-		statusPanel = new JPanel(); // statusPanel dazu
+		this.setLayout(new BorderLayout()); 
+		statusPanel = new JPanel(); 
 		this.add(statusPanel, BorderLayout.SOUTH);
-
-		JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-		// aufteilung des fensters Vertikal
-		this.add(splitPane, BorderLayout.CENTER); // ins mittlere layout
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.add(ifcObjectCountView = new IfcObjectCountView(ifcModel),"Fenster Count", 0);
 		JScrollPane scrollpane = new JScrollPane(ifcObjectCountView);
@@ -106,7 +95,6 @@ public class BimApplication extends JFrame {
 	}
 
 	public static void main(String[] args) {
-		// Mainclasse
 		new BimApplication();
 	}
 

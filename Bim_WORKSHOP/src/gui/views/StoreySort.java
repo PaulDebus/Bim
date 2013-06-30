@@ -5,7 +5,6 @@ package gui.views;
 
 import ifc2x3javatoolbox.ifc2x3tc1.IfcBuildingStorey;
 
-import java.util.Collections;
 import java.util.Comparator;
 
 public class StoreySort implements Comparator<IfcBuildingStorey>{
