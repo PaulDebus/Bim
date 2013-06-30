@@ -462,7 +462,7 @@ public class IfcObjectCountView extends JPanel implements IfcModelListener {
 								
 								for (int i=0; i< wallMaterial.size()/2; i++) {
 									int j = 2*i;
-									wallMaterialText += "\n    " + wallMaterial.get(j) + "	" + wallMaterial.get(j+1).length() + "	" + Math.round(volumeofSlabs*100)/100.0 + "m^3";
+									wallMaterialText += "\n    " + wallMaterial.get(j) + "	" + wallMaterial.get(j+1).length() + "	" + Math.round(volumeofWalls*100)/100.0 + "m^3";
 								}
 								
 								Meldung += "\n \n Wände\n Anzahl: " + "		" + numberofWalls + "\n Gesamtvolumen: " + "	" + Math.round(volumeofWalls*100)/100.0 + "m^3 \n    Nach Material: " + "	" + "Anzahl" + "	"	+ "Volumen" +		 wallMaterialText ; 

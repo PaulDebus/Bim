@@ -101,6 +101,7 @@ public class BimApplication extends JFrame {
 		tabbedPane = new JTabbedPane(JTabbedPane.TOP);
 		tabbedPane.add(ifcObjectCountView = new IfcObjectCountView(ifcModel),"Fenster Count", 0);
 		JScrollPane scrollpane = new JScrollPane(ifcObjectCountView);
+		scrollpane.getVerticalScrollBar().setUnitIncrement(16);
 		add(scrollpane);
 	}
 
